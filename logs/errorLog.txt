@@ -1,3 +1,16 @@
 20230124	19:07:49	c50e4eaf-72f3-4f46-8aec-8b82f5c00efd	Error: ❌ Not Allowed By CORS
 20230124	19:07:49	63fbb162-aa13-4898-ae7d-f51067badd07	Error: ❌ Not Allowed By CORS
 20230124	19:09:25	c2def9e5-7d0c-414f-aae2-dd0ad5479a61	Error: ❌ Not Allowed By CORS
+20230127	00:29:50	742e63ca-b665-4ca0-b1f2-c5ece54179c5	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/views/subdir/test.html'
+20230127	00:30:00	7d8caa04-e213-4439-9bbe-507a019858cf	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/views/subdir/test.html'
+20230127	01:27:55	e9a44af9-e702-4e23-86c2-3d0e09501963	TypeError: Cannot read properties of undefined (reading 'find')
+20230127	01:28:11	22575ac7-cef5-42eb-b26d-607622efb25a	TypeError: Cannot read properties of undefined (reading 'find')
+20230127	01:28:28	127ceb82-2c14-439a-859d-fcd6be967e80	TypeError: Cannot read properties of undefined (reading 'id')
+20230127	01:28:33	b316f67d-d494-4c72-9e63-7c94637cb9dd	TypeError: Cannot read properties of undefined (reading 'find')
+20230127	01:36:42	ea86676b-f49f-46e2-a592-8cdc8841bde4	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/new-page.html'
+20230127	01:38:18	d5a20333-b3c8-4c50-87ca-27aa3814de34	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/new-page.html'
+20230127	01:38:19	8f25e53c-dd36-4891-8262-fdde98df5afa	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/new-page.html'
+20230127	01:38:19	70e6b319-7c0a-4405-a04b-c4a8347b846c	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/new-page.html'
+20230127	01:38:20	40a30af2-c1be-46fb-bd16-67f136701f7a	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/new-page.html'
+20230127	01:38:39	92e028f9-b3bb-45cc-8de1-6fa650d186c0	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/subdir/index.html'
+20230127	01:38:44	8f5251ca-649a-41ac-8f33-3d03b6d25ebf	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/subdir/test.html'

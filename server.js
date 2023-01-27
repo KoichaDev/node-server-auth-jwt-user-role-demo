@@ -3,6 +3,8 @@ const path = require('path');
 const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
 const cors = require('cors');
+const api = require('./routes/api');
+const views = require('./routes/views');
 
 const PORT = process.env.PORT || 3500;
 
@@ -37,52 +39,15 @@ app.use(express.urlencoded({ extended: false }));
 // out of submission
 app.use(express.json());
 
-// built-in to serve static files
 // it will search the route public directory for the request before it moves to another routes
+// built-in to serve static files
 app.use(express.static(path.join(__dirname, '/public')));
+app.use('/subdir', express.static(path.join(__dirname, '/public')));
 
+// Routes
+app.use(api);
+app.use(views);
 // It's a regular expression that matches the root path (`/`) or the path `/index` or
-app.get('^/$|/index(.html)?', (req, res) => {
-	res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-
-app.get('/new-page(.html)?', (req, res) => {
-	res.sendFile(path.join(__dirname, 'views', 'new-page.html'));
-});
-
-app.get('/old-page(.html)?', (req, res) => {
-	res.redirect(301, '/new-page.html');
-});
-
-app.get(
-	'/hello(.html)?',
-	(req, res, next) => {
-		console.log('attempted to load hello.html!');
-
-		next();
-	},
-	(req, res) => {
-		res.send('hello world');
-	}
-);
-
-const one = (req, res, next) => {
-	console.log('one');
-	next();
-};
-
-const two = (req, res, next) => {
-	console.log('two');
-	next();
-};
-
-const three = (req, res, next) => {
-	console.log('finished!');
-	res.send('finished!');
-	next();
-};
-
-app.get('/chain(.html)?', [one, two, three]);
 
 // app.all() is for more routing and will apply to all http methods at once
 app.all('*', (req, res) => {
