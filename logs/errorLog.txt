@@ -14,3 +14,5 @@
 20230127	01:38:20	40a30af2-c1be-46fb-bd16-67f136701f7a	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/new-page.html'
 20230127	01:38:39	92e028f9-b3bb-45cc-8de1-6fa650d186c0	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/subdir/index.html'
 20230127	01:38:44	8f5251ca-649a-41ac-8f33-3d03b6d25ebf	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/subdir/test.html'
+20230127	01:41:01	43b96c92-a5d7-4d2f-84ef-b8b3738ab17f	ReferenceError: data is not defined
+20230128	19:36:01	e965e399-3e1f-4954-83e4-32d06acc643e	SyntaxError: Unexpected token M in JSON at position 19

@@ -3,6 +3,7 @@ const path = require('path');
 const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
 const cors = require('cors');
+const corsOptions = require('./config/corsOptions');
 const api = require('./routes/api');
 const views = require('./routes/views');
 
@@ -12,19 +13,6 @@ const app = express();
 
 // Custom Middle-ware Logger
 app.use(logger);
-
-// Cross Origins Resource Sharing
-const whiteList = ['https://www.yoursite.com', 'http://localhost:3500'];
-const corsOptions = {
-	origin: (origin, callback) => {
-		if (whiteList.indexOf(origin) !== -1 || !origin) {
-			callback(null, true);
-		} else {
-			callback(new Error('❌ Not Allowed By CORS'));
-		}
-	},
-	optionsSuccessStatus: 200,
-};
 
 app.use(cors(corsOptions));
 
