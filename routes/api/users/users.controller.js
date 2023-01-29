@@ -35,6 +35,9 @@ const createNewUser = async (req, res) => {
 		// store the new user
 		const newUser = {
 			username: user,
+			roles: {
+				user: 2001,
+			},
 			password: hashedPassword,
 		};
 

@@ -2,12 +2,10 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const verifyJWT = (req, res, next) => {
-	const authHeader = req.headers['authorization'];
+	const authHeader = req.headers.authorization || req.headers.Authorization;
 	// 401 = unauthorized
+	if (!authHeader?.startsWith('Bearer ')) return res.status(401);
 
-	if (!authHeader) return res.status(401);
-
-	console.log(authHeader); // Bearer token
 	const token = authHeader.split(' ')[1];
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
 		if (err) {
@@ -18,7 +16,8 @@ const verifyJWT = (req, res, next) => {
 		}
 
 		// This is being decoded and we can read the username
-		req.user = decoded.username;
+		req.user = decoded.userInfo.username;
+		req.roles = decoded.userInfo.roles;
 		next();
 	});
 };
