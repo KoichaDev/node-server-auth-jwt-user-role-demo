@@ -1,9 +1,8 @@
-// Cross Origins Resource Sharing
-const WHITE_LISTS = ['https://www.yoursite.com', 'http://localhost:3500'];
+const { ALLOWED_ORIGINS } = require('./constants/allowedOrigins.js');
 
 const corsOptions = {
 	origin: (origin, callback) => {
-		if (WHITE_LISTS.indexOf(origin) !== -1 || !origin) {
+		if (ALLOWED_ORIGINS.indexOf(origin) !== -1 || !origin) {
 			callback(null, true);
 		} else {
 			callback(new Error('❌ Not Allowed By CORS'));

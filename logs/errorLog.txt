@@ -16,3 +16,17 @@
 20230127	01:38:44	8f5251ca-649a-41ac-8f33-3d03b6d25ebf	Error: ENOENT: no such file or directory, stat '/Users/khoi/Documents/projects/react/Dave Gray/node/routes/views/subdir/test.html'
 20230127	01:41:01	43b96c92-a5d7-4d2f-84ef-b8b3738ab17f	ReferenceError: data is not defined
 20230128	19:36:01	e965e399-3e1f-4954-83e4-32d06acc643e	SyntaxError: Unexpected token M in JSON at position 19
+20230129	01:10:33	5a0e9fc9-2639-4085-b542-7c4b457347ff	SyntaxError: Unexpected token e in JSON at position 0
+20230129	17:23:41	884d8a40-0d18-48cc-b4c1-d870e25e8b8f	TypeError: res.headers is not a function
+20230129	17:39:08	ce92ac97-0861-4e20-a73b-a71105f186f0	Error: ❌ Not Allowed By CORS
+20230129	17:39:08	3638fde8-54ea-46cd-8923-199ae2dd000f	Error: ❌ Not Allowed By CORS
+20230129	17:39:30	652ea227-44ae-4c39-953a-99ea57302566	Error: ❌ Not Allowed By CORS
+20230129	17:39:30	336bcaa8-1864-4d40-84ab-89edb7fc137c	Error: ❌ Not Allowed By CORS
+20230129	17:39:32	135b717d-6808-4dd4-8923-7257daac9c97	Error: ❌ Not Allowed By CORS
+20230129	17:39:32	844736d2-c183-4974-9173-8c6264bc05c3	Error: ❌ Not Allowed By CORS
+20230129	17:39:54	736b8c09-f2c8-4366-84d9-2d54c74fafa3	Error: ❌ Not Allowed By CORS
+20230129	17:39:54	a830d1f1-b54d-4b1d-a61b-6f61c0f7cc03	Error: ❌ Not Allowed By CORS
+20230129	17:40:09	ee891c1f-9e21-4427-849b-57296f3f99ac	Error: ❌ Not Allowed By CORS
+20230129	17:40:09	e9bba944-e395-4aa6-9cd5-1e2fc13e6038	Error: ❌ Not Allowed By CORS
+20230129	17:40:11	0eed7e35-8de3-41d8-8d49-f6dbe2f9ce15	Error: ❌ Not Allowed By CORS
+20230129	17:40:11	76d35148-5ba7-4ad2-b9ba-ad0bdfd2277b	Error: ❌ Not Allowed By CORS

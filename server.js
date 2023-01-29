@@ -2,9 +2,11 @@ const express = require('express');
 const path = require('path');
 const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
+const credentials = require('./middleware/credentials');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
 const api = require('./routes/api');
+const cookieParser = require('cookie-parser');
 const views = require('./routes/views');
 
 const PORT = process.env.PORT || 3500;
@@ -13,6 +15,11 @@ const app = express();
 
 // Custom Middle-ware Logger
 app.use(logger);
+
+// Handle options credentials check before CORS! This is because CORS sees the response
+// headers is not set, it will throw that error
+// and fetch cookies credentials requirement.
+app.use(credentials);
 
 app.use(cors(corsOptions));
 
@@ -26,6 +33,9 @@ app.use(express.urlencoded({ extended: false }));
 // if json data is submitted, we need to be able to get those parameters or that data
 // out of submission
 app.use(express.json());
+
+// middleware for cookies
+app.use(cookieParser());
 
 // it will search the route public directory for the request before it moves to another routes
 // built-in to serve static files
