@@ -24,18 +24,14 @@ const handleLogin = async (req, res) => {
 
 	const foundUser = usersDB.users.find((person) => person.username === user);
 
-	if (!foundUser) {
-		// Unauthorized status code
-		res.status(401).json({
-			error: `Unauthorized`,
-		});
-	}
+	// Unauthorized status code
+	if (!foundUser) return res.sendStatus(401);
 
 	// evaluate password
 	const isMatchedPassword = await bcrypt.compare(password, foundUser.password);
 
 	if (isMatchedPassword) {
-		const roles = Object.values(foundUser.roles);
+		const roles = Object.values(foundUser.roles).filter(Boolean);
 
 		// We are are creating JWTs
 		// Just pass in username, and not password. Passing password would hurt your security
@@ -80,7 +76,7 @@ const handleLogin = async (req, res) => {
 			httpOnly: true, // this is to be not available to Javascript
 			maxAge: EXPIRES_IN_ONE_DAY,
 		});
-		res.json({ accessToken });
+		res.json({ roles, accessToken });
 	} else {
 		res.status(401);
 	}
