@@ -56,4 +56,8 @@ const createNewUser = async (req, res) => {
 	}
 };
 
-module.exports = { createNewUser };
+const getAllUsers = (req, res) => {
+	res.status(200).json(usersDB.users);
+};
+
+module.exports = { createNewUser, getAllUsers };
