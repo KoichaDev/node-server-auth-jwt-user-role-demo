@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const { startServer } = require('./services/mongo');
+const { connectMongoDB } = require('./services/mongo');
 const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
 const credentials = require('./middleware/credentials');
@@ -65,5 +65,15 @@ server.all('*', (req, res) => {
 // this is to make it cleaner to show output if something went wrong with the error
 // in front-end of the response
 server.use(errorHandler);
+
+const startServer = async () => {
+	const PORT = process.env.PORT || 3500;
+
+	await connectMongoDB();
+
+	server.listen(PORT, () => {
+		console.log(`🚀 Server is running on port ${PORT}`);
+	});
+};
 
 startServer();

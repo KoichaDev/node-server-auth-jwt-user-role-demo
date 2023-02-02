@@ -1,13 +1,5 @@
-const fsPromises = require('fs').promises;
-const path = require('path');
+const userModel = require('../../../models/user.model');
 const bcrypt = require('bcrypt');
-
-const usersDB = {
-	users: require('../../../models/users.json'),
-	setUsers(data) {
-		this.users = data;
-	},
-};
 
 const createNewUser = async (req, res) => {
 	const { user, password } = req.body;
@@ -18,8 +10,12 @@ const createNewUser = async (req, res) => {
 		});
 	}
 
-	// Check for duplicated username in the Database
-	const isDuplicateUser = usersDB.users.find((person) => person.username === user);
+	// Not every mongoose methods needs the exec() data model, but this in particular does
+	// that is because we could pass in a callback afterward like error result for example.
+	// If you don't do that and you are using the async/await, then you need to put exec()
+	// at the end of findOne()
+	// src: https://mongoosejs.com/docs/async-await.html#queries
+	const isDuplicateUser = await userModel.findOne({ username: user }).exec();
 
 	if (isDuplicateUser) {
 		// 409 = conflict HTTP status code
@@ -29,22 +25,16 @@ const createNewUser = async (req, res) => {
 	}
 
 	try {
-		// encrypt the password by hasing and salting.
+		// encrypt the password by hashing and salting.
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		// store the new user
-		const newUser = {
+		// create and store the new user on Mongoose all at once
+		const storeUser = await userModel.create({
 			username: user,
-			roles: {
-				user: 2001,
-			},
 			password: hashedPassword,
-		};
+		});
 
-		usersDB.setUsers([...usersDB.users, newUser]);
-
-		const usersJson = path.join(__dirname, '..', '..', '..', 'models', 'users.json');
-		await fsPromises.writeFile(usersJson, JSON.stringify(usersDB.users));
+		console.log(storeUser);
 
 		res.status(201).json({
 			success: `New User ${user} created`,

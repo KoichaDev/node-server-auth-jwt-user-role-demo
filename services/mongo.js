@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
-const express = require('express');
 require('dotenv').config();
 
-const mongo = express();
 /**
  * In strict query mode, Mongoose will only return fields that have been explicitly defined in your schema,
  * even if the fields exist in the underlying MongoDB document. By setting strictQuery to false,
@@ -39,14 +37,4 @@ const disconnectMongoDB = async () => {
 	}
 };
 
-const startServer = async () => {
-	const PORT = process.env.PORT || 3500;
-
-	await connectMongoDB();
-
-	await mongo.listen(PORT, () => {
-		console.log(`🚀 Server is running on port ${PORT}`);
-	});
-};
-
-module.exports = { connectMongoDB, disconnectMongoDB, startServer };
+module.exports = { connectMongoDB, disconnectMongoDB };
