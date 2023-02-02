@@ -1,7 +1,9 @@
+const userModel = require('../../../models/user.model');
 const jwt = require('jsonwebtoken');
+const { EXPIRES_IN_THIRTY_SECONDS } = require('./constants/tokenExpiration');
 
 const usersDB = {
-	users: require('../../../models/users.json'),
+	users: require('../../../models/fixtures/users.json'),
 	setUsers(data) {
 		this.users = data;
 	},
@@ -13,13 +15,19 @@ const usersDB = {
  * @returns The access token is being returned.
  */
 
-const handleRefreshToken = (req, res) => {
+const handleRefreshToken = async (req, res) => {
 	const cookies = req.cookies;
 
 	if (!cookies?.jwt) return res.sendStatus(401);
 
 	const refreshToken = cookies.jwt;
-	const foundUser = usersDB.users.find((person) => person.refreshToken === refreshToken);
+
+	// Not every mongoose methods needs the exec() data model, but this in particular does
+	// that is because we could pass in a callback afterward like error result for example.
+	// If you don't do that and you are using the async/await, then you need to put exec()
+	// at the end of findOne()
+	// src: https://mongoosejs.com/docs/async-await.html#queries
+	const foundUser = await userModel.findOne({ refreshToken }).exec();
 
 	// Forbidden status code
 	if (!foundUser) return res.sendStatus(403);
@@ -41,11 +49,11 @@ const handleRefreshToken = (req, res) => {
 			},
 			process.env.ACCESS_TOKEN_SECRET,
 			{
-				expiresIn: '2s',
+				expiresIn: EXPIRES_IN_THIRTY_SECONDS,
 			}
 		);
 
-		res.json({ roles, accessToken });
+		res.json({ accessToken });
 	});
 };
 

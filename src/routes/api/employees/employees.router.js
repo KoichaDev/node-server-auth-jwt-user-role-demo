@@ -7,10 +7,10 @@ const {
 	updateEmployeeById,
 } = require('./employees.controller');
 
-const { ROLES_LIST } = require('../../../config/constants/rolesList');
-const { verifyRoles } = require('../../../middleware/verifyRoles');
+const { ROLES_LIST } = require('./constant/rolesList');
+const { verifyRoles } = require('./helpers/verifyRoles');
 
-const { admin: ADMIN, editor: EDITOR, user: USER } = ROLES_LIST;
+const { Admin: ADMIN, Editor: EDITOR } = ROLES_LIST;
 
 const employeesRouter = express.Router();
 

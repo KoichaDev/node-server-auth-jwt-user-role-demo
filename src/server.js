@@ -4,6 +4,7 @@ const path = require('path');
 const { connectMongoDB } = require('./services/mongo');
 const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
+const helmet = require('helmet');
 const credentials = require('./middleware/credentials');
 const cors = require('cors');
 const corsConfig = require('./config/corsConfig');
@@ -15,6 +16,8 @@ const server = express();
 
 // Custom Middle-ware Logger
 server.use(logger);
+
+server.use(helmet());
 
 // Handle options credentials check before CORS! This is because CORS sees the response
 // headers is not set, it will throw that error

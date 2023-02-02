@@ -1,28 +1,18 @@
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const fsPromises = require('fs').promises;
-const path = require('path');
-
-const usersDB = {
-	users: require('../../../models/users.json'),
-	setUsers(data) {
-		this.users = data;
-	},
-};
-
-const pathToUsersJson = path.join(__dirname, '..', '..', '..', 'models', 'users.json');
+const bcrypt = require('bcrypt');
+const userModel = require('../../../models/user.model');
+const { EXPIRES_IN_THIRTY_SECONDS, EXPIRES_IN_ONE_DAY } = require('./constants/tokenExpiration');
 
 const handleLogin = async (req, res) => {
 	const { user, password } = req.body;
 
-	console.log(req.body);
 	if (!user || !password) {
 		return res.status(400).json({
 			error: 'Username and password are required!',
 		});
 	}
 
-	const foundUser = usersDB.users.find((person) => person.username === user);
+	const foundUser = await userModel.findOne({ username: user }).exec();
 
 	// Unauthorized status code
 	if (!foundUser) return res.sendStatus(401);
@@ -44,7 +34,7 @@ const handleLogin = async (req, res) => {
 			},
 			process.env.ACCESS_TOKEN_SECRET,
 			{
-				expiresIn: '2s',
+				expiresIn: EXPIRES_IN_THIRTY_SECONDS,
 			}
 		);
 
@@ -54,21 +44,16 @@ const handleLogin = async (req, res) => {
 			},
 			process.env.REFRESH_TOKEN_SECRET,
 			{
-				expiresIn: '1d',
+				expiresIn: EXPIRES_IN_ONE_DAY,
 			}
 		);
 
 		// We want to save our refreshToken in DB, which will also allows us to create a logout
 		// in the future that will allows us to invalidate the refresh token when a user
 		// logs out. We will saving refresh token with current user
-		const otherUsers = usersDB.users.filter((person) => person.username !== foundUser.username);
-		const currentUser = { ...foundUser, refreshToken };
+		foundUser.refreshToken = refreshToken;
+		const result = await foundUser.save();
 
-		usersDB.setUsers([...otherUsers, currentUser]);
-
-		await fsPromises.writeFile(pathToUsersJson, JSON.stringify(usersDB.users));
-
-		const EXPIRES_IN_ONE_DAY = 24 * 60 * 60 * 1000;
 		const cookieOptions = {
 			httpOnly: true, // this is to be not available to Javascript
 			// secure: process.env.NODE === 'production' ? true : false,
@@ -95,8 +80,9 @@ const handleLogout = async (req, res) => {
 	if (!cookies?.jwt) return res.sendStatus(204);
 
 	const refreshToken = cookies.jwt;
+
 	// Is refreshToken in DB
-	const foundUser = usersDB.users.find((person) => person.refreshToken === refreshToken);
+	const foundUser = await userModel.findOne({ refreshToken }).exec();
 
 	// Forbidden status code
 	if (!foundUser) {
@@ -109,11 +95,10 @@ const handleLogout = async (req, res) => {
 	}
 
 	// Delete the refresh token in DB
-	const otherUsers = usersDB.users.filter((person) => person.refreshToken !== foundUser);
-	const currentUser = { ...foundUser, refreshToken: '' };
-	usersDB.setUsers([...otherUsers, currentUser]);
 
-	await fsPromises.writeFile(pathToUsersJson, JSON.stringify(usersDB.users));
+	foundUser.refreshToken = '';
+	// This will save to the mongoDB document that is stored in the user colletion
+	const result = await foundUser.save();
 
 	res.clearCookie('jwt', {
 		httpOnly: true,

@@ -7,10 +7,10 @@ const verifyJWT = require('../middleware/verifyJWT');
 const api = express.Router();
 
 api.use('/auth', authRouter);
-api.use('/users', usersRouter);
 // This works like a waterfall. Everything that happens verifyJWT will be used
 // the middleware of it
 api.use(verifyJWT);
 api.use('/employees', employeesRouter);
+api.use('/users', usersRouter);
 
 module.exports = api;
