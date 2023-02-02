@@ -26,7 +26,6 @@ const handleRefreshToken = (req, res) => {
 	if (!foundUser) return res.sendStatus(403);
 
 	// evaluate JWT
-
 	jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
 		if (err || foundUser.username !== decoded.username) {
 			return res.sendStatus(403);
@@ -43,11 +42,11 @@ const handleRefreshToken = (req, res) => {
 			},
 			process.env.ACCESS_TOKEN_SECRET,
 			{
-				expiresIn: '30s',
+				expiresIn: '2s',
 			}
 		);
 
-		res.json({ accessToken });
+		res.json({ roles, accessToken });
 	});
 };
 

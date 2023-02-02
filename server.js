@@ -4,7 +4,7 @@ const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
 const credentials = require('./middleware/credentials');
 const cors = require('cors');
-const corsOptions = require('./config/corsOptions');
+const corsConfig = require('./config/corsConfig');
 const api = require('./routes/api');
 const cookieParser = require('cookie-parser');
 const views = require('./routes/views');
@@ -21,7 +21,7 @@ app.use(logger);
 // and fetch cookies credentials requirement.
 app.use(credentials);
 
-app.use(cors(corsOptions));
+app.use(cors(corsConfig));
 
 // app.use() is what we often use to apply middleware to all routes that are coming in
 // built-in middleware to handle urlencoded data
@@ -39,8 +39,8 @@ app.use(cookieParser());
 
 // it will search the route public directory for the request before it moves to another routes
 // built-in to serve static files
-app.use(express.static(path.join(__dirname, '/public')));
-app.use('/subdir', express.static(path.join(__dirname, '/public')));
+// app.use(express.static(path.join(__dirname, '/public')));
+// app.use('/subdir', express.static(path.join(__dirname, '/public')));
 
 // Routes
 app.use(api);

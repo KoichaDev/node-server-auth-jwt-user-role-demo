@@ -16,6 +16,7 @@ const pathToUsersJson = path.join(__dirname, '..', '..', '..', 'models', 'users.
 const handleLogin = async (req, res) => {
 	const { user, password } = req.body;
 
+	console.log(req.body);
 	if (!user || !password) {
 		return res.status(400).json({
 			error: 'Username and password are required!',
@@ -44,7 +45,7 @@ const handleLogin = async (req, res) => {
 			},
 			process.env.ACCESS_TOKEN_SECRET,
 			{
-				expiresIn: '30s',
+				expiresIn: '2s',
 			}
 		);
 
@@ -63,19 +64,24 @@ const handleLogin = async (req, res) => {
 		// logs out. We will saving refresh token with current user
 		const otherUsers = usersDB.users.filter((person) => person.username !== foundUser.username);
 		const currentUser = { ...foundUser, refreshToken };
+
 		usersDB.setUsers([...otherUsers, currentUser]);
 
 		await fsPromises.writeFile(pathToUsersJson, JSON.stringify(usersDB.users));
 
 		const EXPIRES_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+		const cookieOptions = {
+			httpOnly: true, // this is to be not available to Javascript
+			// secure: process.env.NODE === 'production' ? true : false,
+			// sameSite: process.env.NODE === 'production' ? 'None' : 'Lax',
+			maxAge: EXPIRES_IN_ONE_DAY,
+		};
 
 		// ! Cookie is not available to JavaScript and while it is not 100% secure, but it is much
 		// ! more secure than storing your refresh token in local Storage or in another cookie
 		// ! that is available
-		res.cookie('jwt', refreshToken, {
-			httpOnly: true, // this is to be not available to Javascript
-			maxAge: EXPIRES_IN_ONE_DAY,
-		});
+
+		res.cookie('jwt', refreshToken, cookieOptions);
 		res.json({ roles, accessToken });
 	} else {
 		res.status(401);
@@ -97,6 +103,8 @@ const handleLogout = async (req, res) => {
 	if (!foundUser) {
 		res.clearCookie('jwt', {
 			httpOnly: true,
+			// secure: process.env.NODE === 'production' ? true : false,
+			// sameSite: process.env.NODE === 'production' ? 'None' : 'Lax',
 		});
 		return res.sendStatus(204);
 	}
@@ -110,7 +118,8 @@ const handleLogout = async (req, res) => {
 
 	res.clearCookie('jwt', {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production' ? true : false, // only serves in the https
+		// secure: process.env.NODE === 'production' ? true : false,
+		// sameSite: process.env.NODE === 'production' ? 'None' : 'Lax',
 	});
 
 	res.sendStatus(204);
