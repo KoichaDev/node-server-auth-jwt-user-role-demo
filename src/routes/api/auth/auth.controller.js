@@ -1,111 +1,122 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const userModel = require('../../../models/user.model');
-const { EXPIRES_IN_THIRTY_SECONDS, EXPIRES_IN_ONE_DAY } = require('./constants/tokenExpiration');
+const { generateJwtToken, invalidateOldUserRefreshToken } = require('./helpers/tokenUtils');
+const { findUser, findUserRefreshToken } = require('./services/userModel.services');
+const { isMatchedPassword } = require('./helpers/bcryptUtils');
+const { cookieOption } = require('./constants/cookies/cookieOptions');
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require('./constants/tokens/tokenSecret');
+const { EXPIRES_IN_ONE_DAY } = require('./constants/cookies/cookieExpiration');
 
 const handleLogin = async (req, res) => {
-	const { user, password } = req.body;
+	const requestCookies = req.cookies;
 
-	if (!user || !password) {
+	const { user: enteredUsername, password: enteredPassword } = req.body;
+
+	if (!enteredUsername || !enteredPassword) {
 		return res.status(400).json({
 			error: 'Username and password are required!',
 		});
 	}
 
-	const foundUser = await userModel.findOne({ username: user }).exec();
+	const foundUser = await findUser(enteredUsername);
 
 	// Unauthorized status code
 	if (!foundUser) return res.sendStatus(401);
 
 	// evaluate password
-	const isMatchedPassword = await bcrypt.compare(password, foundUser.password);
+	const passwordIsMatched = isMatchedPassword(enteredUsername, foundUser.password);
 
-	if (isMatchedPassword) {
-		const roles = Object.values(foundUser.roles).filter(Boolean);
+	if (!passwordIsMatched) return res.sendStatus(401);
 
-		// We are are creating JWTs
-		// Just pass in username, and not password. Passing password would hurt your security
-		const accessToken = jwt.sign(
-			{
-				userInfo: {
-					username: foundUser.username,
-					roles: roles,
-				},
-			},
-			process.env.ACCESS_TOKEN_SECRET,
-			{
-				expiresIn: EXPIRES_IN_THIRTY_SECONDS,
-			}
-		);
+	const roles = Object.values(foundUser.roles).filter(Boolean);
 
-		const refreshToken = jwt.sign(
-			{
-				username: foundUser.username,
-			},
-			process.env.REFRESH_TOKEN_SECRET,
-			{
-				expiresIn: EXPIRES_IN_ONE_DAY,
-			}
-		);
+	const jwtPayloadAccessToken = {
+		userInfo: {
+			username: foundUser.username,
+			roles: roles,
+		},
+	};
 
-		// We want to save our refreshToken in DB, which will also allows us to create a logout
-		// in the future that will allows us to invalidate the refresh token when a user
-		// logs out. We will saving refresh token with current user
-		foundUser.refreshToken = refreshToken;
-		const result = await foundUser.save();
+	const jwtPayloadNewRefreshToken = {
+		username: foundUser.username,
+	};
 
-		const cookieOptions = {
-			httpOnly: true, // this is to be not available to Javascript
-			// secure: process.env.NODE === 'production' ? true : false,
-			// sameSite: process.env.NODE === 'production' ? 'None' : 'Lax',
-			maxAge: EXPIRES_IN_ONE_DAY,
-		};
+	// It's enough to pass in username, and not password. Passing password would hurt your security!
+	const accessToken = generateJwtToken(jwtPayloadAccessToken, ACCESS_TOKEN_SECRET, {
+		expiresIn: '10s',
+	});
+	const newRefreshToken = generateJwtToken(jwtPayloadNewRefreshToken, REFRESH_TOKEN_SECRET, {
+		expiresIn: '1d',
+	});
 
-		// ! Cookie is not available to JavaScript and while it is not 100% secure, but it is much
-		// ! more secure than storing your refresh token in local Storage or in another cookie
-		// ! that is available
+	const currentJwtToken = requestCookies?.jwt;
+	const currentJwtUserRefreshToken = foundUser.refreshToken;
 
-		res.cookie('jwt', refreshToken, cookieOptions);
-		res.json({ roles, accessToken });
-	} else {
-		res.status(401);
+	/**
+	 * Filtering out the refresh token that is in the cookie
+	 * from the array of refresh tokens in the database.
+	 **/
+	const filterRefreshTokenCookie = invalidateOldUserRefreshToken(currentJwtUserRefreshToken, currentJwtToken);
+
+	// We are checking if the new refresh token array is going to be equal what is already on the DB.
+	// There were no cookies, no old refresh token to delete out of the DB essentially, but if it's
+	// with a jwt, then we want to remove it from the database
+	let newRefreshTokenArray = !currentJwtToken ? currentJwtUserRefreshToken : filterRefreshTokenCookie;
+
+	if (requestCookies?.jwt) {
+		/**
+		 * 1) User logs in but never uses Refresh Token and does not logout
+		 * 2) Refresh Token is stolen
+		 * 3) if 1 & 2, reuse detection is needed to clear all RTs when user logs in
+		 **/
+		const refreshToken = requestCookies.jwt;
+		const foundToken = await findUserRefreshToken(refreshToken);
+
+		if (!foundToken) {
+			newRefreshTokenArray = [];
+		}
+
+		res.clearCookie('jwt', cookieOption);
 	}
+	// We want to save our refreshToken in DB, which will also allows us to create a logout
+	// in the future that will allows us to invalidate the refresh token when a user
+	// logs out. We will saving refresh token with current user
+	foundUser.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+	await foundUser.save();
+
+	// ! Cookie is not available to JavaScript and while it is not 100% secure, but it is much
+	// ! more secure than storing your refresh token in local Storage or in another cookie
+	// ! that is available
+	res.cookie('jwt', newRefreshToken, {
+		...cookieOption,
+		maxAge: EXPIRES_IN_ONE_DAY,
+	});
+
+	res.json({ roles, accessToken });
 };
 
 const handleLogout = async (req, res) => {
-	// TODO: on Client, also delete the access token
-	const cookies = req.cookies;
+	const requestCookies = req.cookies;
 
 	// status 204 =  No Content to send back
-	if (!cookies?.jwt) return res.sendStatus(204);
+	if (!requestCookies?.jwt) return res.sendStatus(204);
 
-	const refreshToken = cookies.jwt;
+	const refreshToken = requestCookies.jwt;
 
-	// Is refreshToken in DB
-	const foundUser = await userModel.findOne({ refreshToken }).exec();
+	// Is refreshToken in DB for the user?
+	const foundUser = await findUserRefreshToken(refreshToken);
 
-	// Forbidden status code
+	// detected the refresh token reuse!
 	if (!foundUser) {
-		res.clearCookie('jwt', {
-			httpOnly: true,
-			// secure: process.env.NODE === 'production' ? true : false,
-			// sameSite: process.env.NODE === 'production' ? 'None' : 'Lax',
-		});
+		res.clearCookie('jwt', cookieOption);
 		return res.sendStatus(204);
 	}
 
 	// Delete the refresh token in DB
+	foundUser.refreshToken = [];
 
-	foundUser.refreshToken = '';
-	// This will save to the mongoDB document that is stored in the user colletion
-	const result = await foundUser.save();
+	// This will save to the mongoDB document that is stored in the user collection
+	await foundUser.save();
 
-	res.clearCookie('jwt', {
-		httpOnly: true,
-		// secure: process.env.NODE === 'production' ? true : false,
-		// sameSite: process.env.NODE === 'production' ? 'None' : 'Lax',
-	});
-
+	res.clearCookie('jwt', cookieOption);
 	res.sendStatus(204);
 };
 

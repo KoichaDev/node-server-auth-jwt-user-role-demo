@@ -1,5 +1,5 @@
-const userModel = require('../../../models/user.model');
 const bcrypt = require('bcrypt');
+const userModel = require('../../../models/user.model');
 
 const createNewUser = async (req, res) => {
 	const { user, password } = req.body;
@@ -46,8 +46,16 @@ const createNewUser = async (req, res) => {
 	}
 };
 
-const getAllUsers = (req, res) => {
-	res.status(200).json(usersDB.users);
+const getAllUsers = async (req, res) => {
+	const users = await userModel.find();
+
+	if (!users) {
+		res.status(204).json({
+			message: 'No users found',
+		});
+	}
+
+	res.json(users);
 };
 
 module.exports = { createNewUser, getAllUsers };
