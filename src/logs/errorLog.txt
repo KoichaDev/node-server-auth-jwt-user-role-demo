@@ -33,3 +33,9 @@
 20230202	03:08:41	39ec8d6e-a735-4818-8478-14b8be39d2b1	Error: ❌ Not Allowed By CORS
 20230202	03:15:26	b1ce9fc3-7fce-42a7-a8dc-a889b17bd153	TypeError: Cannot read properties of undefined (reading 'username')
 20230202	03:15:27	5afb3174-654b-4464-b07b-621afefd4d9b	TypeError: Cannot read properties of undefined (reading 'username')
+20240202	03:24:43	16bdfead-9001-4e0f-8409-ff61658ccced	TypeError: Cannot read properties of undefined (reading 'split')
+20240202	03:38:40	34d47f82-1b00-497f-b3da-d2d2b76c9b2e	ReferenceError: usersDB is not defined
+20240202	03:38:43	df99b6d0-13a9-480f-9cef-341b98f1d148	ReferenceError: usersDB is not defined
+20240202	03:40:09	6771538b-812f-44b7-abd9-8b5f2b84cd4a	ReferenceError: usersDB is not defined
+20240202	03:41:15	743d715e-1bc2-419c-979d-fe10d5529395	ReferenceError: usersDB is not defined
+20240202	03:42:02	f409a910-2bd8-47b3-834f-13ec7288c030	ReferenceError: usersDB is not defined
